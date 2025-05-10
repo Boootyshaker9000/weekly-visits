@@ -20,25 +20,23 @@ export default function WeeklyChart() {
     });
     const [darkMode, setDarkMode] = useState<boolean>(false);
 
-    // Detekce dark mode z browser preference (třída na <html> nebo <body>)
     useEffect(() => {
         const handleThemeChange = () => {
             const isDark = document.documentElement.classList.contains("dark-mode");
             setDarkMode(isDark);
         };
-        // Počáteční nastavení
+
         handleThemeChange();
-        // Sledujeme změny třídy na <html>
+
         const observer = new MutationObserver(handleThemeChange);
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
         return () => observer.disconnect();
     }, []);
 
-    // Načtení dat z API
     useEffect(() => {
-        const apiUrl = "localhost:5000/api/weekly-visits";
+        const apiUrl = import.meta.env.VITE_API_URL as string;
         axios
-            .get<WeeklyData>(apiUrl)
+            .get<WeeklyData>(`${apiUrl}/api/weekly-visits`)
             .then((response) => {
                 const visits = response.data.visits;
                 if (!Array.isArray(visits) || visits.length === 0) {
@@ -64,7 +62,6 @@ export default function WeeklyChart() {
             .catch((error) => console.error("Chyba při načítání dat:", error));
     }, [darkMode]);
 
-    // Konfigurace Chart.js options
     const chartOptions: ChartOptions<"line"> = {
         responsive: true,
         maintainAspectRatio: false,
